@@ -39,6 +39,8 @@ namespace mpdkeys {
         bool close_to_tray = false;
         bool minimize_to_tray = true;
 
+        bool invert_shift = false;
+
         public main_form() { 
             InitializeComponent();
             ResourceManager rm = new ResourceManager("mpdkeys.main_form", typeof(main_form).Assembly);
@@ -190,16 +192,22 @@ namespace mpdkeys {
                 config.Write("volume_step", volume_step.ToString());
             }
 
+            if (config.KeyExists("invert_shift")) {
+                invert_shift = config_to_bool("invert_shift");
+            } else {
+                config.Write("invert_shift", invert_shift.ToString().ToLower());
+            }
+
             if (config.KeyExists("close_to_tray")) {
                 close_to_tray = config_to_bool("close_to_tray");
             } else {
-                config.Write("close_to_tray", "false");
+                config.Write("close_to_tray", close_to_tray.ToString().ToLower());
             }
 
             if (config.KeyExists("minimize_to_tray")) {
                 minimize_to_tray = config_to_bool("minimize_to_tray");
             } else {
-                config.Write("minimize_to_tray", "true");
+                config.Write("minimize_to_tray", minimize_to_tray.ToString().ToLower());
             }
 
             if (close_to_tray || minimize_to_tray) {
@@ -364,7 +372,7 @@ namespace mpdkeys {
             if (e.KeyCode == Keys.LShiftKey)          lshift = true;
             if (e.KeyCode == Keys.RShiftKey)          rshift = true;
 
-            if (shift) return;
+            if (invert_shift ^ shift) return;
 
             if (e.KeyCode == Keys.MediaPlayPause)      { e.Handled = true; play_pause_toggle();    }
             if (e.KeyCode == Keys.MediaStop)           { e.Handled = true; stop();                 }
@@ -382,7 +390,7 @@ namespace mpdkeys {
             if (e.KeyCode == Keys.LShiftKey)          lshift = false;
             if (e.KeyCode == Keys.RShiftKey)          rshift = false;
 
-            if (shift) return;
+            if (invert_shift ^ shift) return;
 
             if (e.KeyCode == Keys.MediaPlayPause)     e.Handled = true;
             if (e.KeyCode == Keys.MediaStop)          e.Handled = true;
