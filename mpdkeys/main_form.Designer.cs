@@ -50,7 +50,7 @@
             this.host_text_box.Name = "host_text_box";
             this.host_text_box.Size = new System.Drawing.Size(127, 20);
             this.host_text_box.TabIndex = 0;
-            this.host_text_box.Text = "192.168.1.210";
+            this.host_text_box.Text = "127.0.0.1";
             this.host_text_box.KeyDown += new System.Windows.Forms.KeyEventHandler(this.host_text_box_KeyDown);
             // 
             // host_label
@@ -108,7 +108,6 @@
             // tray_icon
             // 
             this.tray_icon.Text = "MPDKeys";
-            this.tray_icon.Visible = true;
             // 
             // main_form
             // 
@@ -121,10 +120,13 @@
             this.Controls.Add(this.port_label);
             this.Controls.Add(this.host_label);
             this.Controls.Add(this.connect_button);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "main_form";
             this.Text = "mpdkeys";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.config_form_FormClosing);
             this.Load += new System.EventHandler(this.config_form_Load);
+            this.Resize += new System.EventHandler(this.main_form_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.port_nud)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
