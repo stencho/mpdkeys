@@ -34,8 +34,8 @@ namespace mpdkeys {
         int volume = 50;
         int volume_step = 4;
 
-        bool connected = false;
-                
+        bool connected = false;      
+
         bool close_to_tray = false;
         bool minimize_to_tray = true;
 
@@ -158,6 +158,16 @@ namespace mpdkeys {
             ghk.KeyDown += ghk_KeyDown;
             ghk.KeyUp += ghk_KeyUp;
 
+            if (config.KeyExists("host")) {
+                host_text_box.Text = config.Read("host");
+
+                if (config.KeyExists("reconnect") && config_to_bool("reconnect") && config.KeyExists("port")) {
+                    connect_button_Click(sender, new EventArgs());
+                }
+            } else {
+                config.Write("host", "127.0.0.1");
+            }
+
             if (config.KeyExists("port")) {
                 int v = 0;
                 if (int.TryParse(config.Read("port"), out v)) {
@@ -167,6 +177,10 @@ namespace mpdkeys {
                 config.Write("port", "6600");
             }
 
+            if (!config.KeyExists("reconnect")) {
+                config.Write("reconnect", "false");
+            }
+
             if (config.KeyExists("volume_step")) {
                 int v = 0;
                 if (int.TryParse(config.Read("volume_step"), out v) && v > 0) {
@@ -174,16 +188,6 @@ namespace mpdkeys {
                 } 
             } else {
                 config.Write("volume_step", volume_step.ToString());
-            }
-
-            if (config.KeyExists("host")) {
-                host_text_box.Text = config.Read("host");
-
-                if (config.KeyExists("port")) {
-                    connect_button_Click(sender, new EventArgs());
-                }
-            } else {
-                config.Write("host", "127.0.0.1");
             }
 
             if (config.KeyExists("close_to_tray")) {
@@ -419,6 +423,12 @@ namespace mpdkeys {
                 return;
             } 
 
+            if (mpc_con.IsConnected) {
+                config.Write("reconnect", "true");
+            } else {
+                config.Write("reconnect", "false");
+            }
+
             //disconnect if needed, then unhook the keys
             if (mpc_con != null && mpc_con.IsConnected)
                 mpc_con.DisconnectAsync();
@@ -427,6 +437,7 @@ namespace mpdkeys {
 
             config.Write("host", host_text_box.Text);
             config.Write("port", port_nud.Value.ToString());
+
         }
 
         //Hooks, UI and MPD connection stuff goes above here 
