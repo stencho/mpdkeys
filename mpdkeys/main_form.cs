@@ -6,11 +6,13 @@ using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using MpcNET;
 using MpcNET.Message;
 
@@ -37,7 +39,14 @@ namespace mpdkeys {
         bool close_to_tray = false;
         bool minimize_to_tray = true;
 
-        public main_form() { InitializeComponent(); }
+        public main_form() { 
+            InitializeComponent();
+            ResourceManager rm = new ResourceManager("mpdkeys.main_form", typeof(main_form).Assembly);
+            Bitmap icon_png = (Bitmap)rm.GetObject("icon");
+
+            this.Icon = Icon.FromHandle(icon_png.GetHicon());
+            tray_icon.Icon = Icon.FromHandle(icon_png.GetHicon());
+        }
 
         //Hooks, UI and MPD connection stuff goes below here
 
@@ -186,17 +195,17 @@ namespace mpdkeys {
             if (config.KeyExists("minimize_to_tray")) {
                 minimize_to_tray = config_to_bool("minimize_to_tray");
             } else {
-                config.Write("minimize_to_tray", "false");
+                config.Write("minimize_to_tray", "true");
             }
 
             if (close_to_tray || minimize_to_tray) {
                 tray_icon.Visible = true;
-                tray_icon.Icon = this.Icon;
                 tray_icon.MouseDoubleClick += Tray_icon_MouseDoubleClick;
                 tray_icon.Text = "mpdkeys";
 
-                tray_icon.ContextMenu = new ContextMenu(new MenuItem[1] { new MenuItem("Exit") });
-                tray_icon.ContextMenu.MenuItems[0].Click += exit_tray_click;
+                tray_icon.ContextMenuStrip = new ContextMenuStrip();
+                tray_icon.ContextMenuStrip.Items.Add(new ToolStripButton("Exit"));
+                tray_icon.ContextMenuStrip.Items[0].Click += exit_tray_click;
             }
         }
 
@@ -388,17 +397,19 @@ namespace mpdkeys {
             this.Close();
         }
 
-        private void Tray_icon_MouseDoubleClick(object sender, MouseEventArgs e) {            
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+        private void Tray_icon_MouseDoubleClick(object sender, MouseEventArgs e) {
+            if (!this.Visible) {
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+            } else {
+                this.Hide();
+            }
         }
 
         private void main_form_Resize(object sender, EventArgs e) {
             if (WindowState == FormWindowState.Minimized && minimize_to_tray) {
-                this.Hide();
-                
+                this.Hide();                
             }
-            Console.WriteLine(WindowState);
         }
 
         private void config_form_FormClosing(object sender, FormClosingEventArgs e) {
