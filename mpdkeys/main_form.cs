@@ -429,17 +429,19 @@ namespace mpdkeys {
                 this.Hide();
                 e.Cancel = true;
                 return;
-            } 
-
-            if (mpc_con.IsConnected) {
-                config.Write("reconnect", "true");
-            } else {
-                config.Write("reconnect", "false");
             }
 
             //disconnect if needed, then unhook the keys
-            if (mpc_con != null && mpc_con.IsConnected)
-                mpc_con.DisconnectAsync();
+            if (mpc_con != null) {
+                if (mpc_con.IsConnected) {
+                    config.Write("reconnect", "true");
+                } else {
+                    config.Write("reconnect", "false");
+                }
+
+                if (mpc_con.IsConnected)
+                    mpc_con.DisconnectAsync();
+            }
 
             ghk.unhook();
 
